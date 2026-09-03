@@ -1,0 +1,74 @@
+﻿<Window x:Class="银行管理系统WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:银行管理系统WPF"
+        mc:Ignorable="d"
+        Title="银行管理系统"
+        Height="600" Width="1000"
+        MinHeight="450" MinWidth="800"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition />
+            <RowDefinition Height="30" />
+        </Grid.RowDefinitions>
+
+        <Menu Grid.Row="0" >
+            <MenuItem Header="系统管理" >
+                <MenuItem
+                    Command="{Binding OpenPageCommand}"
+                    CommandParameter="View/Pages/UserList.xaml"
+                    Header="用户列表" />
+            </MenuItem>
+            <MenuItem Header="地址管理">
+                <MenuItem
+                    Command="{Binding OpenPageCommand}"
+                    CommandParameter="View/Pages/AddressList.xaml"
+                    Header="地址列表" />
+            </MenuItem>
+            <MenuItem Header="客户管理">
+                <MenuItem
+                    Command="{Binding OpenPageCommand}"
+                    CommandParameter="View/Pages/CustomerList.xaml"
+                    Header="客户列表" />
+            </MenuItem>
+        </Menu>
+
+        <!--  内容区 容器  Source 资源  -->
+        <Frame
+            Grid.Row="1"
+            NavigationUIVisibility="Hidden"
+            Source="{Binding CurrentPage}" />
+
+        <StatusBar Grid.Row="2">
+            <!--  状态栏的文本  -->
+            <StatusBarItem Padding="10,0">
+                <TextBlock>当前登录：</TextBlock>
+            </StatusBarItem>
+
+            <!--  另一个状态栏项目  -->
+            <StatusBarItem Padding="10,0">
+                <TextBlock Text="{Binding CurrentUser.Account}" />
+            </StatusBarItem>
+
+            <StatusBarItem Padding="10,0">
+                <Separator
+                    Width="15"
+                    Height="1"
+                    Background="Black">
+                    <Separator.LayoutTransform>
+                        <RotateTransform Angle="90" />
+                    </Separator.LayoutTransform>
+                </Separator>
+            </StatusBarItem>
+
+            <StatusBarItem Padding="10,0" HorizontalAlignment="Right">
+                <TextBlock>版权所有©HelloWorld</TextBlock>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

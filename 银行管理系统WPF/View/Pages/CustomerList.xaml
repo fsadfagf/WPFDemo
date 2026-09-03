@@ -1,0 +1,160 @@
+﻿<Page x:Class="银行管理系统WPF.View.Pages.CustomerList"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:local="clr-namespace:银行管理系统WPF.View.Pages"
+      xmlns:uc="clr-namespace:银行管理系统WPF.usercontrols"
+      xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+      mc:Ignorable="d"
+
+      Title="CustomerList">
+    <Grid Background="Gray">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="130"/>
+            <RowDefinition/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+
+        <!--  查询条件  -->
+        <GroupBox Grid.Row="0" Margin="0 10" Header="查询条件">
+            <StackPanel>
+                <WrapPanel>
+                    <Label Content="客户姓名:" Style="{StaticResource LableStyle}"/>
+                    <TextBox
+                        Style="{StaticResource TextBoxStyle}"
+                        Template="{StaticResource TextBoxCornerTemplate}"
+                        Text="{Binding SearchName,UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <Label Content="性别:" Style="{StaticResource LableStyle}" />
+                    <ComboBox
+                        Width="100"
+                        VerticalAlignment="Center"
+                        SelectedValue="{Binding SexText}"
+                        SelectedValuePath="Content">
+                        <ComboBoxItem Content="全部" />
+                        <ComboBoxItem Content="男" />
+                        <ComboBoxItem Content="女" />
+                    </ComboBox>
+
+                    <Label Content="状态:" Style="{StaticResource LableStyle}" />
+                    <ComboBox
+                        Width="100"
+                        VerticalAlignment="Center"
+                        SelectedValue="{Binding StatusText}"
+                        SelectedValuePath="Content">
+                        <ComboBoxItem Content="全部" />
+                        <ComboBoxItem Content="正常" />
+                        <ComboBoxItem Content="禁用" />
+                    </ComboBox>
+                </WrapPanel>
+
+                <WrapPanel  Height="50">
+                    <Label Content="起始时间:" Style="{StaticResource LableStyle}" />
+                    <DatePicker Width="120" SelectedDate="{Binding StartTime}" />
+                    <Label Content="至:" Style="{StaticResource LableStyle}" />
+                    <DatePicker Width="120" SelectedDate="{Binding EndTime}" />
+                    <Button
+                        Content="查询" 
+                        Style="{StaticResource ButtonStyle}"
+                        Template="{StaticResource ButtonCornerTemplate}"
+                        Command="{Binding QueryCommand}" />
+                    <Button
+                        Content="添加"
+                        Style="{StaticResource ButtonStyle}"
+                        Template="{StaticResource ButtonCornerTemplate}"
+                        Command="{Binding AddEditCommand}" />
+                   
+                </WrapPanel>
+            </StackPanel>
+        </GroupBox>
+
+        <!--  客户列表  -->
+        <DataGrid
+            x:Name="CustomerDataGrid"
+            Grid.Row="1"
+            AutoGenerateColumns="False"
+            CanUserAddRows="False"
+            HorizontalScrollBarVisibility="Visible"
+            VerticalScrollBarVisibility="Auto"
+            IsReadOnly="False"
+            ItemsSource="{Binding Customers}"
+            SelectionMode="Single"
+            CellEditEnding="CustomerDataGrid_CellEditEnding">
+
+            <!--  姓名 / 年龄 / 电话 可直接在单元格里双击修改，光标离开该单元格即自动入库  -->
+            <DataGrid.Columns>
+                <DataGridTextColumn
+                    Width="80"
+                    MinWidth="80"
+                    Binding="{Binding CustomerId}"
+                    Header="客户编号"
+                    IsReadOnly="True" />
+                <!--  自适应：星号列按权重分摊多余宽度（全屏时铺满），MinWidth 保证窄窗口下撑出滚动条  -->
+                <DataGridTextColumn
+                    Width="2*"
+                    MinWidth="120"
+                    Binding="{Binding CustomerName}"
+                    Header="客户姓名" />
+                <DataGridTextColumn
+                    Width="60"
+                    MinWidth="60"
+                    Binding="{Binding SexName}"
+                    Header="性别"
+                    IsReadOnly="True" />
+                <DataGridTextColumn
+                    Width="60"
+                    MinWidth="60"
+                    Binding="{Binding Age}"
+                    Header="年龄" />
+                <DataGridTextColumn
+                    Width="1.5*"
+                    MinWidth="130"
+                    Binding="{Binding Phone}"
+                    Header="联系电话" />
+                <DataGridTextColumn
+                    Width="1.5*"
+                    MinWidth="160"
+                    Binding="{Binding CreateTime, StringFormat=yyyy-MM-dd HH:mm}"
+                    Header="创建时间"
+                    IsReadOnly="True" />
+                <DataGridTextColumn
+                    Width="80"
+                    MinWidth="80"
+                    Binding="{Binding StatusName}"
+                    Header="状态"
+                    IsReadOnly="True" />
+
+                <!--  操作列：引用 App.xaml 里的公共模板 OperationColumnTemplate  -->
+                <DataGridTemplateColumn
+                    Width="240"
+                    MinWidth="240"
+                    CellTemplate="{StaticResource OperationColumnTemplate}"
+                    Header="操作" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!--  分页控件：PageChanged 事件通过 Interaction 转成 ViewModel 的命令  -->
+        <uc:ucPage
+            x:Name="CustomerPager"
+            Grid.Row="2"
+            PageIndex="{Binding PageIndex, Mode=TwoWay}"
+            TotalCount="{Binding TotalCount, Mode=TwoWay}"
+            TotalPage="{Binding TotalPage, Mode=TwoWay}">
+            <i:Interaction.Triggers>
+                <!--  不写 CommandParameter 时，InvokeCommandAction 会把事件参数（含新旧页码）传给命令  -->
+                <i:EventTrigger EventName="PageChanged">
+                    <i:InvokeCommandAction Command="{Binding PageChangedCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </uc:ucPage>
+
+        <!--  本页统计  -->
+        <TextBlock
+            Grid.Row="3"
+            Margin="10,0"
+            VerticalAlignment="Center"
+            Text="{Binding Customers.Count, StringFormat='本页 {0} 条'}" />
+    </Grid>
+</Page>

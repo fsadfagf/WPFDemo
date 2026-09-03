@@ -1,0 +1,133 @@
+﻿<Page x:Class="银行管理系统WPF.View.Pages.UserList"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:银行管理系统WPF.View.Pages"
+      xmlns:uc="clr-namespace:银行管理系统WPF.usercontrols"
+      xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+      mc:Ignorable="d"
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="UserList">
+
+    <Grid Background="Gray">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="130"/>
+            <RowDefinition/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+
+        <!--  查询条件  -->
+        <GroupBox Grid.Row="0" Margin="0 10" Header="查询条件">
+            <StackPanel>
+                <WrapPanel>
+                    <Label Content="账号:" Style="{StaticResource LableStyle}"/>
+                    <TextBox
+                        Style="{StaticResource TextBoxStyle}"
+                        Template="{StaticResource TextBoxCornerTemplate}"
+                        Text="{Binding SearchAccount,UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <Label Content="状态:" Style="{StaticResource LableStyle}" />
+                    <ComboBox
+                        Width="100"
+                        VerticalAlignment="Center"
+                        SelectedValue="{Binding StatusText}"
+                        SelectedValuePath="Content">
+                        <ComboBoxItem Content="全部" />
+                        <ComboBoxItem Content="正常" />
+                        <ComboBoxItem Content="禁用" />
+                    </ComboBox>
+                </WrapPanel>
+
+                <WrapPanel Height="50">
+                    <Label Content="创建时间:" Style="{StaticResource LableStyle}" />
+                    <DatePicker Width="120" SelectedDate="{Binding StartTime}" />
+                    <Label Content="至:" Style="{StaticResource LableStyle}" />
+                    <DatePicker Width="120" SelectedDate="{Binding EndTime}" />
+                    <Button
+                        Content="查询"
+                        Style="{StaticResource ButtonStyle}"
+                        Template="{StaticResource ButtonCornerTemplate}"
+                        Command="{Binding QueryCommand}" />
+                  
+                    <Button
+                        Content="添加"
+                        Style="{StaticResource ButtonStyle}"
+                        Template="{StaticResource ButtonCornerTemplate}"
+                        Command="{Binding AddEditCommand}" />
+                </WrapPanel>
+            </StackPanel>
+        </GroupBox>
+
+        <!--  用户列表：密码不在表格里显示，改资料一律走弹窗，所以整表只读  -->
+        <DataGrid
+            x:Name="UserDataGrid"
+            Grid.Row="1"
+            AutoGenerateColumns="False"
+            CanUserAddRows="False"
+            HorizontalScrollBarVisibility="Visible"
+            VerticalScrollBarVisibility="Auto"
+            IsReadOnly="True"
+            ItemsSource="{Binding Users}"
+            SelectionMode="Single">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn
+                    Width="80"
+                    MinWidth="80"
+                    Binding="{Binding UserId}"
+                    Header="用户编号" />
+                <DataGridTextColumn
+                    Width="2*"
+                    MinWidth="140"
+                    Binding="{Binding Account}"
+                    Header="账号" />
+                <DataGridTextColumn
+                    Width="2*"
+                    MinWidth="170"
+                    Binding="{Binding CreateTime, StringFormat=yyyy-MM-dd HH:mm}"
+                    Header="创建时间" />
+                <DataGridTextColumn
+                    Width="1*"
+                    MinWidth="90"
+                    Binding="{Binding LastUpdateTime, StringFormat=yyyy-MM-dd HH:mm}"
+                    Header="最后修改时间" />
+                <DataGridTextColumn
+                    Width="80"
+                    MinWidth="80"
+                    Binding="{Binding StatusName}"
+                    Header="状态" />
+
+                <!--  操作列：引用 App.xaml 里的公共模板 OperationColumnTemplate  -->
+                <DataGridTemplateColumn
+                    Width="240"
+                    MinWidth="240"
+                    CellTemplate="{StaticResource OperationColumnTemplate}"
+                    Header="操作" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!--  分页控件：PageChanged 事件通过 Interaction 转成 ViewModel 的命令  -->
+        <uc:ucPage
+            x:Name="UserPager"
+            Grid.Row="2"
+            PageIndex="{Binding PageIndex, Mode=TwoWay}"
+            TotalCount="{Binding TotalCount, Mode=TwoWay}"
+            TotalPage="{Binding TotalPage, Mode=TwoWay}">
+            <i:Interaction.Triggers>
+                <!--  不写 CommandParameter 时，InvokeCommandAction 会把事件参数（含新旧页码）传给命令  -->
+                <i:EventTrigger EventName="PageChanged">
+                    <i:InvokeCommandAction Command="{Binding PageChangedCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </uc:ucPage>
+
+        <!--  本页统计  -->
+        <TextBlock
+            Grid.Row="3"
+            Margin="10,0"
+            VerticalAlignment="Center"
+            Text="{Binding Users.Count, StringFormat='本页 {0} 条'}" />
+    </Grid>
+</Page>
